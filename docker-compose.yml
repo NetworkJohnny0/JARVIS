@@ -1,0 +1,28 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: jarvis-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+
+  jarvis:
+    build:
+      context: .
+      dockerfile: Dockerfile.jarvis
+    container_name: jarvis-app
+    environment:
+      OLLAMA_HOST: ollama:11434
+      MODEL_NAME: jarvis
+    volumes:
+      - ./../Jarvis-Enhanced.Modelfile:/app/Modelfile:ro
+    depends_on:
+      - ollama
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  ollama:

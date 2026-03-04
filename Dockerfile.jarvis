@@ -1,0 +1,28 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# minimal deps for the jarvis bash CLI + curl/jq + health checks
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends bash curl jq ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+# Copy the existing agent (linux-oriented, but usable in container)
+COPY ../jarvis-agent.py /app/jarvis-agent.py
+COPY ../jarvis /app/jarvis
+
+# Put agent where the script expects it
+RUN mkdir -p /opt/jarvis/bin /opt/jarvis/config \
+  && cp /app/jarvis-agent.py /opt/jarvis/bin/jarvis-agent.py \
+  && chmod +x /app/jarvis \
+  && ln -sf /app/jarvis /usr/local/bin/jarvis
+
+# Small helper that:
+# 1) waits for Ollama
+# 2) creates/updates the "jarvis" model from /app/Modelfile (mounted)
+# 3) keeps container alive unless a command is provided
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["jarvis", "chat"]
