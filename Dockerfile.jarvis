@@ -18,7 +18,7 @@ RUN mkdir -p /opt/jarvis/bin /opt/jarvis/config \
   && ln -sf /app/jarvis /usr/local/bin/jarvis
 
 # Small helper that:
-# 1) waits for Ollama
+# 1) standalone/ollama
 # 2) creates/updates the "jarvis" model from /app/Modelfile (mounted)
 # 3) keeps container alive unless a command is provided
 COPY ./entrypoint.sh /app/entrypoint.sh
